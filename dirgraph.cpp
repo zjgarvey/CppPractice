@@ -6,12 +6,17 @@
 using namespace std;
 
 class dirgraph{
+
+    //default constructor will generate an empty graph
+
     protected:
         map<int, vector<int>> edgeout;
         int nodeMax = -1;
         int edgeCount = 0;
 
     public: 
+
+        //adds a node to the graph and initializes an empty edge list
         void addNode() {
             nodeMax++;
             vector<int> nothing (0,0);
@@ -19,6 +24,7 @@ class dirgraph{
             cout << "Added node at " << nodeMax << endl;
         }
 
+        //adds n new nodes
         void addNodes(int n) {
             int j = 0;
             while (j < n){
@@ -27,11 +33,14 @@ class dirgraph{
             }
         }
 
+        //adds an edge between source and target
         void addEdge(int source, int target) {
+            //check if source and target are in graph
             if (source > nodeMax || target > nodeMax) {
                 cout << "Error: source and target nodes are not in graph!" << endl;
             }
             else{
+                //check if edge already exists
                 bool alreadyedge = false;
                 for (int n: edgeout[source]) {
                     if (n == target){
@@ -39,6 +48,7 @@ class dirgraph{
                     }
                 }
                 if (!alreadyedge) {
+                    //add the edge
                     edgeout[source].push_back(target);
                     edgeCount++;
                 }
@@ -84,6 +94,45 @@ class dirgraph{
             cout << '\n';
         }
 
+        void printAllEdges() {
+            for (int n = 0; n<=nodeMax; n++) {
+                cout << "Edges for node " << n << ":" << endl;
+                printEdges(n);
+            }
+        }
+
+        void terminput() {
+            bool val1 = true;
+            bool val2 = true;
+            int source, target, lastnode;
+            cout << "How many vertices? " ;
+            cin >> lastnode;
+            addNodes(lastnode);
+            lastnode++;
+            cout << "Let's make some edges. \nAt any point, type -1 to finish input." << endl;
+            while (val1) {
+                cout << "Input source: ";
+                cin >> source;
+                if (source == -1) {
+                    val1 = false;
+                    cout << "Stopping input." << endl;
+                    break;
+                }
+                cout << '\n' << "Input targets for source " << source << ": " ;
+                val2 = val1;
+                while (val2){
+                    cin >> target;
+                    if (target == -1){
+                        val2 = false;
+                        cout << "Returning to source input." << endl;
+                        break;
+                    }
+                    cout << "Making Edge " << source << "->" << target << endl;
+                    addEdge(source,target);
+                }
+            }
+        }
+
         vector<int> pathfinder (int source, int target);
 
         void pathprinter(int source, int target);
@@ -97,11 +146,11 @@ vector<int> dirgraph::pathfinder (int source, int target) {
     int iter = 0;
     bool found = false;
     queue<int> Q;
-    vector<int> marks (nodeMax,-1);
+    vector<int> marks (nodeMax + 1,-1);
     Q.push(source);
-    marks[source] = -1;
     int qsize = 1;
     while (!found && qsize != 0) {
+        iter++;
         int N = Q.front();
         Q.pop();
         qsize--;
@@ -113,7 +162,6 @@ vector<int> dirgraph::pathfinder (int source, int target) {
                 if (n == target) {found = true; break;}
             }
         }
-        iter++;
     }
     if (found) {
         int index = target;
@@ -129,37 +177,29 @@ vector<int> dirgraph::pathfinder (int source, int target) {
 void dirgraph::pathprinter(int source, int target) {
     auto path = pathfinder(source,target);
     int sze = path.size();
-    if (path.size() != 0){
-    cout << "path from " << source << " to " << target << ": " << '\n' << source;
-    for (int i = sze - 1; i>=0; i--){
-        cout << " -> " << path[i] ;
-    }
-    cout << '\n';
+    if (sze > 0){
+        cout << "path from " << source << " to " << target << ": " << '\n' << source;
+        for (int i = sze - 1; i>=0; i--){
+            cout << " -> " << path[i] ;
+        }
+        cout << '\n';
     }
     else{ cout << "No valid path." << '\n';}
 }
 
+
+
 int main() {
     dirgraph G;
-    G.addNodes(4);
-    G.addEdge(3,1);
-    G.addEdge(3,3);
-    G.addEdge(2,3);
-    G.addEdge(1,0);
-    G.addNode();
-    G.addEdge(4,4);
+    G.terminput();
+    G.printAllEdges();
 
-    for (int n = 0; n<=4; n++) {
-        cout << "Edges for node " << n << ":" << endl;
-        G.printEdges(n);
-    }
-    
     int source;
-    cout << "Source: ";
+    cout << "Source for path search: ";
     cin >> source;
     cout << '\n';
     int target;
-    cout << "Target: ";
+    cout << "Target for path search: ";
     cin >> target;
     cout << '\n';
 
