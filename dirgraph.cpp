@@ -2,12 +2,13 @@
 #include<map>
 #include<vector>
 #include<queue>
+#include<stdexcept>
 
 using namespace std;
 
 class dirgraph{
-
     //default constructor will generate an empty graph
+    //the function terminput will generate a graph based on inputs
 
     protected:
         map<int, vector<int>> edgeout;
@@ -26,6 +27,7 @@ class dirgraph{
 
         //adds n new nodes
         void addNodes(int n) {
+            if (n<=0){throw invalid_argument("Need an positive integer number of nodes.\n");}
             int j = 0;
             while (j < n){
                 addNode();
@@ -37,7 +39,7 @@ class dirgraph{
         void addEdge(int source, int target) {
             //check if source and target are in graph
             if (source > nodeMax || target > nodeMax) {
-                cout << "Error: source and target nodes are not in graph!" << endl;
+                throw invalid_argument("source and target nodes are not in graph!\n");
             }
             else{
                 //check if edge already exists
@@ -56,6 +58,7 @@ class dirgraph{
         }
 
         void removeEdge(int source, int target) {
+        //removes an existing edge (unused)
             int sze = edgeout[source].size();
             for (int n = 0; n < sze; n ++) {
                 if (edgeout[source][n] == target) {
@@ -67,6 +70,8 @@ class dirgraph{
         }
 
         void removeNode(int node) {
+        //removes a node
+
             if (node > nodeMax) {
                 cout << "Not a node!" << endl;
             }
@@ -102,36 +107,81 @@ class dirgraph{
         }
 
         void terminput() {
-            bool val1 = true;
-            bool val2 = true;
             int source, target, lastnode;
             cout << "How many vertices? " ;
+            lastnode = -1;
             cin >> lastnode;
-            addNodes(lastnode);
+            try { 
+                // prevent weird inputs from causing havoc.
+                addNodes(lastnode);
+            } catch (invalid_argument& e) { cout << e.what(); return; }
             lastnode++;
-            cout << "Let's make some edges. \nAt any point, type -1 to finish input." << endl;
-            while (val1) {
-                cout << "Input source: ";
+
+            cout << "Let's make some edges. \n";
+            cout << "The input should be two integers, source and target.\n";
+            cout << "At any point, type -1 to finish input." << endl;
+
+            while (true) {
+                source = -1;
                 cin >> source;
                 if (source == -1) {
-                    val1 = false;
-                    cout << "Stopping input." << endl;
+                    cout << "\nStopping input." << endl;
                     break;
                 }
-                cout << '\n' << "Input targets for source " << source << ": " ;
-                val2 = val1;
-                while (val2){
-                    cin >> target;
-                    if (target == -1){
-                        val2 = false;
-                        cout << "Returning to source input." << endl;
-                        break;
-                    }
-                    cout << "Making Edge " << source << "->" << target << endl;
+                target = -1; 
+                cin >> target;
+                if (target == -1){
+                    cout << "\nStopping input." << endl;
+                    break;
+                }
+
+                try {
                     addEdge(source,target);
+                    cout << "Made edge " << source << "->" << target << endl;
+                } catch (invalid_argument& e) { 
+                    cerr << e.what();
                 }
             }
+
+            int code;
+
+            while (true){
+                cout << "\nPerform an action. Input 0 for options.\n" ;
+                code = -1;
+                cin >> code;
+                cout << "\n-----------------------------\n";
+                if (code == -1) {break;}
+                if (code == 0){
+                    cout << "-----------OPTIONS-----------\n";
+                    cout << "-1:               quit\n";
+                    cout << " 0:               options\n";
+                    cout << " 1:               add one node\n";
+                    cout << " 2 nodeint:       delete node (and associated edges) at nodeint\n";
+                    cout << " 3 source target: add edge between source and target\n";
+                    cout << " 4:               print edges\n";
+                    cout << " 5 source target: find path between source and target\n\n";
+                }
+                if (code == 1){
+                    addNode();
+                }
+                if (code == 2){
+                    cin >> source;
+                    removeNode(source);
+                }
+                if (code == 3){
+                    cin >> source >> target;
+                    addEdge(source,target);
+                }
+                if (code == 4){
+                    printAllEdges();
+                }
+                if (code == 5){
+                    cin >> source >> target;
+                    pathprinter(source,target);
+                }      
+            }     
         }
+        
 
         vector<int> pathfinder (int source, int target);
 
@@ -180,6 +230,9 @@ void dirgraph::pathprinter(int source, int target) {
     if (sze > 0){
         cout << "path from " << source << " to " << target << ": " << '\n' << source;
         for (int i = sze - 1; i>=0; i--){
+            if((sze - i)%10 == 0){
+                cout << " ->\n ";
+            }
             cout << " -> " << path[i] ;
         }
         cout << '\n';
@@ -192,18 +245,6 @@ void dirgraph::pathprinter(int source, int target) {
 int main() {
     dirgraph G;
     G.terminput();
-    G.printAllEdges();
-
-    int source;
-    cout << "Source for path search: ";
-    cin >> source;
-    cout << '\n';
-    int target;
-    cout << "Target for path search: ";
-    cin >> target;
-    cout << '\n';
-
-    G.pathprinter(source, target);
 
     return 0;
 }
