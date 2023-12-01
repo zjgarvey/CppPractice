@@ -158,8 +158,9 @@ class dirgraph{
                     cout << " 1:               add one node\n";
                     cout << " 2 nodeint:       delete node (and associated edges) at nodeint\n";
                     cout << " 3 source target: add edge between source and target\n";
-                    cout << " 4:               print edges\n";
-                    cout << " 5 source target: find path between source and target\n\n";
+                    cout << " 4 source target: delete edge between source and target\n";
+                    cout << " 5:               print edges\n";
+                    cout << " 6 source target: find path between source and target\n\n";
                 }
                 if (code == 1){
                     addNode();
@@ -173,9 +174,13 @@ class dirgraph{
                     addEdge(source,target);
                 }
                 if (code == 4){
-                    printAllEdges();
+                    cin >> source >> target;
+                    removeEdge(source,target);
                 }
                 if (code == 5){
+                    printAllEdges();
+                }
+                if (code == 6){
                     cin >> source >> target;
                     pathprinter(source,target);
                 }      
